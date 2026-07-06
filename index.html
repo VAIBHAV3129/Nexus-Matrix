@@ -1,1 +1,62 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS-MATRIX // SYSTEM_TERMINAL</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="animations.css">
+</head>
+<body>
+    <div id="system-shell">
+        <header id="tracking-bar">
+            <div class="metric-group">
+                <span class="label">SYS_STATUS:</span>
+                <span id="status-readout" class="value">NOMINAL</span>
+                <span class="label">LATENCY:</span>
+                <span id="latency-readout" class="value">0ms</span>
+            </div>
+            <div class="metric-group">
+                <span class="label">COORDINATE_REF:</span>
+                <span id="coord-readout" class="value">0.00, 0.00</span>
+                <span class="label">SYSTEM_CLOCK:</span>
+                <span id="clock-readout" class="value">00:00:00</span>
+            </div>
+        </header>
+        <main id="workspace">
+            <div id="canvas-container">
+                <canvas id="main-viewport"></canvas>
+            </div>
+            <aside id="telemetry-deck">
+                <div id="analytics-panel">
+                    <div class="panel-header">COORDINATE_ANALYTICS</div>
+                    <canvas id="plotter-canvas"></canvas>
+                </div>
+                <div id="scoreboard-panel">
+                    <div class="panel-header">METRICS_SCOREBOARD</div>
+                    <div id="metrics-grid">
+                        <div class="metric-row">
+                            <span class="label">ACTIVE_NODES</span>
+                            <span id="node-count" class="value">0</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="label">ACTIVE_LINKS</span>
+                            <span id="link-count" class="value">0</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="label">ENTROPY_LVL</span>
+                            <span id="entropy-val" class="value">0.00</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="label">BUFFER_LOAD</span>
+                            <span id="buffer-val" class="value">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+    <script src="engine.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
