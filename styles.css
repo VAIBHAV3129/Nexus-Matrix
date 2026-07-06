@@ -1,8 +1,8 @@
 :root {
     --bg-color: #1a1c17;
-    --border-color: #3d4231;
-    --text-color: #a4a892;
-    --accent-color: #c2c6b5;
+    --border-color: #5a604d;
+    --text-color: #bfc2ad;
+    --accent-color: #e0e4d5;
     --font-main: 'Courier New', Courier, monospace;
 }
 
@@ -16,7 +16,7 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: var(--font-main);
-    font-size: 11px;
+    font-size: 13px;
     text-transform: uppercase;
     overflow: hidden;
     height: 100vh;
@@ -25,7 +25,7 @@ body {
 
 #system-shell {
     display: grid;
-    grid-template-rows: 30px 1fr;
+    grid-template-rows: 35px 1fr;
     height: 100vh;
     width: 100vw;
 }
@@ -36,28 +36,31 @@ body {
     border-bottom: 1px solid var(--border-color);
     background: #141612;
     align-items: center;
-    padding: 0 10px;
+    padding: 0 15px;
 }
 
 .metric-group {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     align-items: center;
 }
 
 .label {
     color: var(--border-color);
     font-weight: bold;
+    font-size: 12px;
 }
 
 .value {
     color: var(--accent-color);
     margin-right: 10px;
+    font-weight: bold;
+    font-size: 13px;
 }
 
 #workspace {
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 1fr 320px;
 }
 
 #canvas-container {
@@ -88,9 +91,9 @@ body {
 .panel-header {
     background: var(--border-color);
     color: var(--bg-color);
-    padding: 2px 5px;
+    padding: 4px 8px;
     font-weight: bold;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 #plotter-canvas {
@@ -100,15 +103,23 @@ body {
 }
 
 #metrics-grid {
-    padding: 10px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
 }
 
 .metric-row {
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid #2a2d24;
-    padding-bottom: 4px;
+    border-bottom: 1px solid #3d4231;
+    padding-bottom: 6px;
+}
+
+.metric-row .label {
+    font-size: 12px;
+}
+
+.metric-row .value {
+    font-size: 14px;
 }
