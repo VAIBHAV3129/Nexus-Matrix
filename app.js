@@ -33,7 +33,32 @@ const App = {
     },
 
     bindEvents() {
-        window.addEventListener('resize', () => this.setupCanvases());
+        window.addEventListener('resize', () => {
+            this.setupCanvases();
+            window.NexusCore.updateViewportSize();
+        });
+
+        UI.mainCanvas.addEventListener('mousedown', (e) => {
+            window.NexusCore.setDragging(true);
+            window.NexusCore.setLastMousePos(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('mouseup', () => {
+            window.NexusCore.setDragging(false);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (window.NexusCore.isDragging) {
+                window.NexusCore.pan(e.clientX, e.clientY);
+            }
+            const worldPos = window.NexusCore.screenToWorld(e.clientX, e.clientY);
+            UI.coords.textContent = `${worldPos.x.toFixed(2)}, ${worldPos.y.toFixed(2)}`;
+        });
+
+        UI.mainCanvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            window.NexusCore.zoom(e.deltaY, e.clientX, e.clientY);
+        }, { passive: false });
     },
 
     bootEngine() {
