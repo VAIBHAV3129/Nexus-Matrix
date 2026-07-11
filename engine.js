@@ -6,6 +6,8 @@ class NexusEngine {
         this.lastMouseX = 0;
         this.lastMouseY = 0;
         
+        this.CHUNK_SIZE = 500;
+        
         this.viewportState = {
             offsetX: 0,
             offsetY: 0,
@@ -67,12 +69,20 @@ class NexusEngine {
         };
     }
 
+    getSectorCoordinate(wx, wy) {
+        return {
+            cx: Math.floor(wx / this.CHUNK_SIZE),
+            cy: Math.floor(wy / this.CHUNK_SIZE)
+        };
+    }
+
     update() {
     }
 
     render() {
         this.clear();
         this.drawGrid();
+        this.drawSectorBorders();
     }
 
     clear() {
@@ -82,11 +92,11 @@ class NexusEngine {
 
     drawGrid() {
         const ctx = this.mainCtx;
-        ctx.strokeStyle = '#6b6343';
+        ctx.strokeStyle = '#3a3626';
         ctx.lineWidth = 1;
         ctx.beginPath();
         
-        const gridSize = 100;
+        const gridSize = 50;
         const scaledGrid = gridSize * this.viewportState.zoom;
         
         const startX = this.viewportState.offsetX % scaledGrid;
@@ -98,6 +108,30 @@ class NexusEngine {
         }
         
         for (let y = startY; y < this.viewportState.height; y += scaledGrid) {
+            ctx.moveTo(0, y);
+            ctx.lineTo(this.viewportState.width, y);
+        }
+        
+        ctx.stroke();
+    }
+
+    drawSectorBorders() {
+        const ctx = this.mainCtx;
+        ctx.strokeStyle = '#6b6343';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        const scaledChunk = this.CHUNK_SIZE * this.viewportState.zoom;
+        
+        const startX = this.viewportState.offsetX % scaledChunk;
+        const startY = this.viewportState.offsetY % scaledChunk;
+        
+        for (let x = startX; x < this.viewportState.width; x += scaledChunk) {
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, this.viewportState.height);
+        }
+        
+        for (let y = startY; y < this.viewportState.height; y += scaledChunk) {
             ctx.moveTo(0, y);
             ctx.lineTo(this.viewportState.width, y);
         }
