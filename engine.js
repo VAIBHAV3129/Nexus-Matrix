@@ -6,6 +6,7 @@ class NexusEngine {
         this.lastMouseX = 0;
         this.lastMouseY = 0;
         
+        this.systemSeed = "NEXUS_77_BETA";
         this.CHUNK_SIZE = 500;
         
         this.viewportState = {
@@ -76,6 +77,32 @@ class NexusEngine {
         };
     }
 
+    generateDeterministicHash(cx, cy) {
+        const str = `${this.systemSeed}_${cx}_${cy}`;
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = ((hash << 5) - hash) + str.charCodeAt(i);
+            hash |= 0;
+        }
+        return hash;
+    }
+
+    getChunkNodes(cx, cy) {
+        const seed = this.generateDeterministicHash(cx, cy);
+        const nodes = [];
+        const nodeCount = (Math.abs(seed) % 4) + 2;
+        
+        for (let i = 0; i < nodeCount; i++) {
+            const nodeSeed = this.generateDeterministicHash(cx + i, cy + seed);
+            nodes.push({
+                x: (Math.abs(nodeSeed) % this.CHUNK_SIZE),
+                y: (Math.abs(nodeSeed >> 2) % this.CHUNK_SIZE),
+                id: `${cx}_${cy}_${i}`
+            });
+        }
+        return nodes;
+    }
+
     update() {
     }
 
@@ -83,6 +110,7 @@ class NexusEngine {
         this.clear();
         this.drawGrid();
         this.drawSectorBorders();
+        this.drawActiveNodes();
     }
 
     clear() {
@@ -137,5 +165,31 @@ class NexusEngine {
         }
         
         ctx.stroke();
+    }
+
+    drawActiveNodes() {
+        const ctx = this.mainCtx;
+        const topLeft = this.screenToWorld(0, 0);
+        const bottomRight = this.screenToWorld(this.viewportState.width, this.viewportState.height);
+        
+        const startCX = this.getSectorCoordinate(topLeft.x, topLeft.y).cx;
+        const startCY = this.getSectorCoordinate(topLeft.x, topLeft.y).cy;
+        const endCX = this.getSectorCoordinate(bottomRight.x, bottomRight.y).cx;
+        const endCY = this.getSectorCoordinate(bottomRight.x, bottomRight.y).cy;
+
+        ctx.fillStyle = '#ffdf80';
+        
+        for (let cx = startCX; cx <= endCX; cx++) {
+            for (let cy = startCY; cy <= endCY; cy++) {
+                const nodes = this.getChunkNodes(cx, cy);
+                nodes.forEach(node => {
+                    const worldX = cx * this.CHUNK_SIZE + node.x;
+                    const worldY = cy * this.CHUNK_SIZE + node.y;
+                    const screen = this.worldToScreen(worldX, worldY);
+                    
+                    ctx.fillRect(screen.x - 2, screen.y - 2, 4, 4);
+                });
+            }
+        }
     }
 }
