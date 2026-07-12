@@ -11,6 +11,7 @@ let offset = { x: 0, y: 0 };
 let zoom = 1;
 let isDragging = false;
 let lastMouse = { x: 0, y: 0 };
+let chunkCache = {};
 
 function resize() {
     width = canvas.width = window.innerWidth;
@@ -41,6 +42,9 @@ function hash(str) {
 }
 
 function getChunkNodes(cx, cy) {
+    const key = `${cx},${cy}`;
+    if (chunkCache[key]) return chunkCache[key];
+
     const chunkSeed = hash(`${seed}_${cx}_${cy}`);
     const count = (Math.abs(chunkSeed) % 3) + 1;
     const nodes = [];
@@ -49,11 +53,22 @@ function getChunkNodes(cx, cy) {
         const nSeed = hash(`${seed}_${cx}_${cy}_${i}`);
         nodes.push({
             x: (Math.abs(nSeed) % chunkSize),
-            y: (Math.abs((nSeed >> 8) % chunkSize)),
-            id: `${cx}_${cy}_${i}`
+            y: (Math.abs((nSeed >> 8) % chunkSize))
         });
     }
+    
+    chunkCache[key] = nodes;
     return nodes;
+}
+
+function cullCache() {
+    const keys = Object.keys(chunkCache);
+    if (keys.length > 200) {
+        const limit = keys.length - 100;
+        for (let i = 0; i < limit; i++) {
+            delete chunkCache[keys[i]];
+        }
+    }
 }
 
 window.addEventListener('resize', resize);
@@ -116,13 +131,13 @@ function draw() {
     const endCX = Math.floor(bottomRight.x / chunkSize);
     const endCY = Math.floor(bottomRight.y / chunkSize);
 
-    let activeNodes = [];
+    let visibleNodes = [];
 
     for (let cx = startCX; cx <= endCX; cx++) {
         for (let cy = startCY; cy <= endCY; cy++) {
-            const chunkNodes = getChunkNodes(cx, cy);
-            chunkNodes.forEach(n => {
-                activeNodes.push({
+            const nodes = getChunkNodes(cx, cy);
+            nodes.forEach(n => {
+                visibleNodes.push({
                     x: cx * chunkSize + n.x,
                     y: cy * chunkSize + n.y
                 });
@@ -130,7 +145,7 @@ function draw() {
         }
     }
     
-    const allNodes = [...activeNodes, ...userNodes];
+    const allNodes = [...visibleNodes, ...userNodes];
     nodeDisp.textContent = allNodes.length;
 
     ctx.strokeStyle = '#4a4d3f';
@@ -138,8 +153,8 @@ function draw() {
         for (let j = i + 1; j < allNodes.length; j++) {
             const dx = allNodes[i].x - allNodes[j].x;
             const dy = allNodes[i].y - allNodes[j].y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 200) {
+            const distSq = dx * dx + dy * dy;
+            if (distSq < 40000) {
                 const p1 = worldToScreen(allNodes[i].x, allNodes[i].y);
                 const p2 = worldToScreen(allNodes[j].x, allNodes[j].y);
                 ctx.beginPath();
@@ -161,6 +176,7 @@ function draw() {
         ctx.fillRect(0, i, width, 1);
     }
 
+    cullCache();
     requestAnimationFrame(draw);
 }
 
