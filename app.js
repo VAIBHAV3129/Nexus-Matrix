@@ -4,7 +4,9 @@ const coordDisp = document.getElementById('coord-val');
 const nodeDisp = document.getElementById('node-val');
 
 let width, height;
-let nodes = [];
+let userNodes = [];
+let seed = "NEXUS_PROTOTYPE_01";
+let chunkSize = 500;
 let offset = { x: 0, y: 0 };
 let zoom = 1;
 let isDragging = false;
@@ -29,14 +31,39 @@ function worldToScreen(wx, wy) {
     };
 }
 
+function hash(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) {
+        h = ((h << 5) - h) + str.charCodeAt(i);
+        h |= 0;
+    }
+    return h;
+}
+
+function getChunkNodes(cx, cy) {
+    const chunkSeed = hash(`${seed}_${cx}_${cy}`);
+    const count = (Math.abs(chunkSeed) % 3) + 1;
+    const nodes = [];
+    
+    for (let i = 0; i < count; i++) {
+        const nSeed = hash(`${seed}_${cx}_${cy}_${i}`);
+        nodes.push({
+            x: (Math.abs(nSeed) % chunkSize),
+            y: (Math.abs((nSeed >> 8) % chunkSize)),
+            id: `${cx}_${cy}_${i}`
+        });
+    }
+    return nodes;
+}
+
 window.addEventListener('resize', resize);
 resize();
 
 canvas.addEventListener('mousedown', (e) => {
     if (e.button === 0) {
         const world = screenToWorld(e.clientX, e.clientY - 30);
-        nodes.push(world);
-        nodeDisp.textContent = nodes.length;
+        userNodes.push(world);
+        nodeDisp.textContent = userNodes.length;
     }
     if (e.button === 1 || e.shiftKey) {
         isDragging = true;
@@ -82,15 +109,39 @@ function draw() {
     }
     ctx.stroke();
 
+    const topLeft = screenToWorld(0, 0);
+    const bottomRight = screenToWorld(width, height);
+    const startCX = Math.floor(topLeft.x / chunkSize);
+    const startCY = Math.floor(topLeft.y / chunkSize);
+    const endCX = Math.floor(bottomRight.x / chunkSize);
+    const endCY = Math.floor(bottomRight.y / chunkSize);
+
+    let activeNodes = [];
+
+    for (let cx = startCX; cx <= endCX; cx++) {
+        for (let cy = startCY; cy <= endCY; cy++) {
+            const chunkNodes = getChunkNodes(cx, cy);
+            chunkNodes.forEach(n => {
+                activeNodes.push({
+                    x: cx * chunkSize + n.x,
+                    y: cy * chunkSize + n.y
+                });
+            });
+        }
+    }
+    
+    const allNodes = [...activeNodes, ...userNodes];
+    nodeDisp.textContent = allNodes.length;
+
     ctx.strokeStyle = '#4a4d3f';
-    for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-            const dx = nodes[i].x - nodes[j].x;
-            const dy = nodes[i].y - nodes[j].y;
+    for (let i = 0; i < allNodes.length; i++) {
+        for (let j = i + 1; j < allNodes.length; j++) {
+            const dx = allNodes[i].x - allNodes[j].x;
+            const dy = allNodes[i].y - allNodes[j].y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 300) {
-                const p1 = worldToScreen(nodes[i].x, nodes[i].y);
-                const p2 = worldToScreen(nodes[j].x, nodes[j].y);
+            if (dist < 200) {
+                const p1 = worldToScreen(allNodes[i].x, allNodes[i].y);
+                const p2 = worldToScreen(allNodes[j].x, allNodes[j].y);
                 ctx.beginPath();
                 ctx.moveTo(p1.x, p1.y);
                 ctx.lineTo(p2.x, p2.y);
@@ -100,7 +151,7 @@ function draw() {
     }
 
     ctx.fillStyle = '#ffdf80';
-    nodes.forEach(n => {
+    allNodes.forEach(n => {
         const p = worldToScreen(n.x, n.y);
         ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
     });
