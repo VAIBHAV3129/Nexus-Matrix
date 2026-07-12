@@ -3,6 +3,7 @@
     --border-color: #6b6343;
     --text-color: #d4cc9c;
     --accent-color: #ffdf80;
+    --label-color: #b5ad85;
     --font-main: 'Courier New', Courier, monospace;
 }
 
@@ -46,7 +47,7 @@ body {
 }
 
 .label {
-    color: var(--border-color);
+    color: var(--label-color);
     font-weight: bold;
     font-size: 12px;
 }
@@ -90,7 +91,7 @@ body {
 
 .panel-header {
     background: var(--border-color);
-    color: var(--bg-color);
+    color: #000;
     padding: 4px 8px;
     font-weight: bold;
     font-size: 12px;
@@ -118,6 +119,7 @@ body {
 
 .metric-row .label {
     font-size: 12px;
+    color: var(--label-color);
 }
 
 .metric-row .value {
