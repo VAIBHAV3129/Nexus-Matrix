@@ -63,8 +63,8 @@ function getChunkNodes(cx, cy) {
 
 function cullCache() {
     const keys = Object.keys(chunkCache);
-    if (keys.length > 200) {
-        const limit = keys.length - 100;
+    if (keys.length > 300) {
+        const limit = keys.length - 200;
         for (let i = 0; i < limit; i++) {
             delete chunkCache[keys[i]];
         }
@@ -132,16 +132,18 @@ function draw() {
     const endCY = Math.floor(bottomRight.y / chunkSize);
 
     let visibleNodes = [];
+    let processedChunks = [];
 
     for (let cx = startCX; cx <= endCX; cx++) {
         for (let cy = startCY; cy <= endCY; cy++) {
             const nodes = getChunkNodes(cx, cy);
-            nodes.forEach(n => {
-                visibleNodes.push({
-                    x: cx * chunkSize + n.x,
-                    y: cy * chunkSize + n.y
-                });
-            });
+            const worldNodes = nodes.map(n => ({
+                x: cx * chunkSize + n.x,
+                y: cy * chunkSize + n.y,
+                cx, cy
+            }));
+            visibleNodes.push(...worldNodes);
+            processedChunks.push({cx, cy, nodes: worldNodes});
         }
     }
     
@@ -149,21 +151,34 @@ function draw() {
     nodeDisp.textContent = allNodes.length;
 
     ctx.strokeStyle = '#4a4d3f';
-    for (let i = 0; i < allNodes.length; i++) {
-        for (let j = i + 1; j < allNodes.length; j++) {
-            const dx = allNodes[i].x - allNodes[j].x;
-            const dy = allNodes[i].y - allNodes[j].y;
-            const distSq = dx * dx + dy * dy;
-            if (distSq < 40000) {
-                const p1 = worldToScreen(allNodes[i].x, allNodes[i].y);
-                const p2 = worldToScreen(allNodes[j].x, allNodes[j].y);
-                ctx.beginPath();
-                ctx.moveTo(p1.x, p1.y);
-                ctx.lineTo(p2.x, p2.y);
-                ctx.stroke();
+    processedChunks.forEach(chunk => {
+        const {cx, cy, nodes} = chunk;
+        
+        for (let i = 0; i < nodes.length; i++) {
+            const n1 = nodes[i];
+            
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    const neighborNodes = getChunkNodes(cx + dx, cy + dy).map(n => ({
+                        x: (cx + dx) * chunkSize + n.x,
+                        y: (cy + dy) * chunkSize + n.y
+                    }));
+
+                    neighborNodes.forEach(n2 => {
+                        const distSq = Math.pow(n1.x - n2.x, 2) + Math.pow(n1.y - n2.y, 2);
+                        if (distSq < 40000 && distSq > 0) {
+                            const p1 = worldToScreen(n1.x, n1.y);
+                            const p2 = worldToScreen(n2.x, n2.y);
+                            ctx.beginPath();
+                            ctx.moveTo(p1.x, p1.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.stroke();
+                        }
+                    });
+                }
             }
         }
-    }
+    });
 
     ctx.fillStyle = '#ffdf80';
     allNodes.forEach(n => {
