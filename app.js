@@ -27,12 +27,12 @@ let chunkCache = {};
 
 function resize() {
     width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight - 30;
+    height = canvas.height = window.innerHeight - 40;
 }
 
 function screenToWorld(sx, sy) {
     const tx = sx - offset.x;
-    const ty = (sy - 30) - offset.y;
+    const ty = (sy - 40) - offset.y;
     const rad = -rotation * Math.PI / 180;
     const rx = (tx * Math.cos(rad) - ty * Math.sin(rad)) / zoom;
     const ry = (tx * Math.sin(rad) + ty * Math.cos(rad)) / zoom;
@@ -117,7 +117,7 @@ canvas.addEventListener('wheel', (e) => {
     zoom *= factor;
     const s = worldToScreen(world.x, world.y);
     offset.x -= (s.x - e.clientX);
-    offset.y -= (s.y - (e.clientY - 30));
+    offset.y -= (s.y - (e.clientY - 40));
 }, { passive: false });
 
 undoBtn.addEventListener('click', () => {
