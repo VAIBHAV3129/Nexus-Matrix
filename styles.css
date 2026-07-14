@@ -1,8 +1,10 @@
 :root {
     --bg: #0d0e0c;
-    --border: #4a4d3f;
-    --text: #b0b39a;
-    --accent: #e0e4d5;
+    --border: #6b6d5f;
+    --text: #d4cc9c;
+    --accent: #ffdf80;
+    --label-light: #b5ad85;
+    --font-main: 'Courier New', Courier, monospace;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -10,7 +12,7 @@
 body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: var(--font-main);
     font-size: 12px;
     text-transform: uppercase;
     overflow: hidden;
@@ -18,37 +20,39 @@ body {
 
 #shell {
     display: grid;
-    grid-template-rows: 30px 1fr;
+    grid-template-rows: 40px 1fr;
     height: 100vh;
     width: 100vw;
 }
 
 #bar {
     display: flex;
-    gap: 20px;
+    gap: 25px;
     padding: 0 15px;
     align-items: center;
     border-bottom: 1px solid var(--border);
     background: #0a0b09;
+    height: 40px;
 }
 
 .group { display: flex; gap: 8px; align-items: center; }
-.label { color: var(--border); }
+.label { color: var(--label-light); font-weight: bold; }
 .value { color: var(--accent); font-weight: bold; }
 
 #toggle-gen {
     cursor: pointer;
-    accent-color: var(--border);
+    accent-color: var(--accent);
 }
 
 .ui-btn {
     background: transparent;
     border: 1px solid var(--border);
-    color: var(--text);
+    color: var(--label-light);
     font-family: inherit;
     font-size: 10px;
     cursor: pointer;
-    padding: 2px 8px;
+    padding: 3px 10px;
+    transition: all 0.2s;
 }
 
 .ui-btn:hover {
@@ -62,8 +66,28 @@ body {
     color: var(--accent);
     font-family: inherit;
     font-size: 10px;
-    width: 40px;
+    width: 45px;
     text-align: center;
+}
+
+#save-btn {
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: bold;
+    box-shadow: 0 0 5px rgba(255, 223, 128, 0.2);
+    animation: glow-pulse 2s infinite ease-in-out;
+}
+
+#save-btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: 0 0 15px rgba(255, 223, 128, 0.5);
+}
+
+@keyframes glow-pulse {
+    0% { box-shadow: 0 0 5px rgba(255, 223, 128, 0.2); }
+    50% { box-shadow: 0 0 12px rgba(255, 223, 128, 0.4); }
+    100% { box-shadow: 0 0 5px rgba(255, 223, 128, 0.2); }
 }
 
 #view {
