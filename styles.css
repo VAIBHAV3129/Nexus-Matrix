@@ -25,16 +25,21 @@ body {
 
 #bar {
     display: flex;
-    gap: 40px;
+    gap: 30px;
     padding: 0 15px;
     align-items: center;
     border-bottom: 1px solid var(--border);
     background: #0a0b09;
 }
 
-.group { display: flex; gap: 8px; }
+.group { display: flex; gap: 8px; align-items: center; }
 .label { color: var(--border); }
 .value { color: var(--accent); font-weight: bold; }
+
+#toggle-gen {
+    cursor: pointer;
+    accent-color: var(--border);
+}
 
 .ui-btn {
     background: transparent;
