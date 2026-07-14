@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d');
 const coordDisp = document.getElementById('coord-val');
 const nodeDisp = document.getElementById('node-val');
 const saveBtn = document.getElementById('save-btn');
+const toggleGen = document.getElementById('toggle-gen');
 
 let width, height;
 let userNodes = [];
@@ -144,27 +145,29 @@ function draw() {
     }
     ctx.stroke();
 
-    const topLeft = screenToWorld(0, 0);
-    const bottomRight = screenToWorld(width, height);
-    const startCX = Math.floor(topLeft.x / chunkSize);
-    const startCY = Math.floor(topLeft.y / chunkSize);
-    const endCX = Math.floor(bottomRight.x / chunkSize);
-    const endCY = Math.floor(bottomRight.y / chunkSize);
+    let allVisible = [...userNodes];
 
-    let visibleGenNodes = [];
-    for (let cx = startCX; cx <= endCX; cx++) {
-        for (let cy = startCY; cy <= endCY; cy++) {
-            const nodes = getChunkNodes(cx, cy);
-            nodes.forEach(n => {
-                visibleGenNodes.push({
-                    x: cx * chunkSize + n.x,
-                    y: cy * chunkSize + n.y
+    if (toggleGen.checked) {
+        const topLeft = screenToWorld(0, 0);
+        const bottomRight = screenToWorld(width, height);
+        const startCX = Math.floor(topLeft.x / chunkSize);
+        const startCY = Math.floor(topLeft.y / chunkSize);
+        const endCX = Math.floor(bottomRight.x / chunkSize);
+        const endCY = Math.floor(bottomRight.y / chunkSize);
+
+        for (let cx = startCX; cx <= endCX; cx++) {
+            for (let cy = startCY; cy <= endCY; cy++) {
+                const nodes = getChunkNodes(cx, cy);
+                nodes.forEach(n => {
+                    allVisible.push({
+                        x: cx * chunkSize + n.x,
+                        y: cy * chunkSize + n.y
+                    });
                 });
-            });
+            }
         }
     }
 
-    const allVisible = [...visibleGenNodes, ...userNodes];
     nodeDisp.textContent = allVisible.length;
 
     ctx.strokeStyle = '#4a4d3f';
