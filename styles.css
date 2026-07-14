@@ -36,6 +36,21 @@ body {
 .label { color: var(--border); }
 .value { color: var(--accent); font-weight: bold; }
 
+.ui-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 10px;
+    cursor: pointer;
+    padding: 2px 8px;
+}
+
+.ui-btn:hover {
+    background: var(--border);
+    color: var(--bg);
+}
+
 #view {
     position: relative;
     background: #000;
