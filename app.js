@@ -2,6 +2,7 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const coordDisp = document.getElementById('coord-val');
 const nodeDisp = document.getElementById('node-val');
+const saveBtn = document.getElementById('save-btn');
 
 let width, height;
 let userNodes = [];
@@ -10,6 +11,7 @@ let chunkSize = 500;
 let offset = { x: 0, y: 0 };
 let zoom = 1;
 let isDragging = false;
+let isDrawing = false;
 let lastMouse = { x: 0, y: 0 };
 let chunkCache = {};
 
@@ -76,9 +78,9 @@ resize();
 
 canvas.addEventListener('mousedown', (e) => {
     if (e.button === 0) {
+        isDrawing = true;
         const world = screenToWorld(e.clientX, e.clientY - 30);
         userNodes.push(world);
-        nodeDisp.textContent = userNodes.length;
     }
     if (e.button === 1 || e.shiftKey) {
         isDragging = true;
@@ -86,11 +88,22 @@ canvas.addEventListener('mousedown', (e) => {
     }
 });
 
-window.addEventListener('mouseup', () => isDragging = false);
+window.addEventListener('mouseup', () => {
+    isDrawing = false;
+    isDragging = false;
+});
 
 window.addEventListener('mousemove', (e) => {
     const world = screenToWorld(e.clientX, e.clientY - 30);
     coordDisp.textContent = `${world.x.toFixed(0)}, ${world.y.toFixed(0)}`;
+
+    if (isDrawing) {
+        const lastNode = userNodes[userNodes.length - 1];
+        const distSq = Math.pow(world.x - lastNode.x, 2) + Math.pow(world.y - lastNode.y, 2);
+        if (distSq > 100) {
+            userNodes.push(world);
+        }
+    }
 
     if (isDragging) {
         offset.x += e.clientX - lastMouse.x;
@@ -107,6 +120,13 @@ canvas.addEventListener('wheel', (e) => {
     offset.x = e.clientX - world.x * zoom;
     offset.y = (e.clientY - 30) - world.y * zoom;
 }, { passive: false });
+
+saveBtn.addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = `nexus_capture_${Date.now()}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+});
 
 function draw() {
     ctx.fillStyle = '#000';
@@ -138,8 +158,7 @@ function draw() {
             nodes.forEach(n => {
                 visibleGenNodes.push({
                     x: cx * chunkSize + n.x,
-                    y: cy * chunkSize + n.y,
-                    cx, cy
+                    y: cy * chunkSize + n.y
                 });
             });
         }
@@ -151,13 +170,11 @@ function draw() {
     ctx.strokeStyle = '#4a4d3f';
     for (let i = 0; i < allVisible.length; i++) {
         const n1 = allVisible[i];
-        
         for (let j = i + 1; j < allVisible.length; j++) {
             const n2 = allVisible[j];
             const dx = n1.x - n2.x;
             const dy = n1.y - n2.y;
             const distSq = dx * dx + dy * dy;
-            
             if (distSq < 40000) {
                 const p1 = worldToScreen(n1.x, n1.y);
                 const p2 = worldToScreen(n2.x, n2.y);
