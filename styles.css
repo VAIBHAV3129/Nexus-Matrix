@@ -25,7 +25,7 @@ body {
 
 #bar {
     display: flex;
-    gap: 30px;
+    gap: 20px;
     padding: 0 15px;
     align-items: center;
     border-bottom: 1px solid var(--border);
@@ -54,6 +54,16 @@ body {
 .ui-btn:hover {
     background: var(--border);
     color: var(--bg);
+}
+
+.ui-input {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 10px;
+    width: 40px;
+    text-align: center;
 }
 
 #view {
