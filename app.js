@@ -78,6 +78,8 @@ function saveState() {
 window.addEventListener('resize', resize);
 resize();
 
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
 canvas.addEventListener('mousedown', (e) => {
     if (e.button === 0) {
         saveState();
@@ -85,7 +87,7 @@ canvas.addEventListener('mousedown', (e) => {
         const world = screenToWorld(e.clientX, e.clientY);
         userNodes.push(world);
     }
-    if (e.button === 1 || e.shiftKey) {
+    if (e.button === 2 || e.button === 1 || e.shiftKey) {
         isDragging = true;
         lastMouse = { x: e.clientX, y: e.clientY };
     }
