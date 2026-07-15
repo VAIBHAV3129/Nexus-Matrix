@@ -75,8 +75,34 @@ function saveState() {
     redoStack = [];
 }
 
+function persist() {
+    const state = {
+        userNodes,
+        offset,
+        zoom,
+        rotation
+    };
+    localStorage.setItem('nexus_matrix_state', JSON.stringify(state));
+}
+
+function loadState() {
+    const raw = localStorage.getItem('nexus_matrix_state');
+    if (!raw) return;
+    try {
+        const state = JSON.parse(raw);
+        userNodes = state.userNodes || [];
+        offset = state.offset || { x: 0, y: 0 };
+        zoom = state.zoom !== undefined ? state.zoom : 1;
+        rotation = state.rotation !== undefined ? state.rotation : 0;
+        rotInput.value = rotation;
+    } catch (e) {
+        console.error("STATE_LOAD_FAIL");
+    }
+}
+
 window.addEventListener('resize', resize);
 resize();
+loadState();
 
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
@@ -94,6 +120,7 @@ canvas.addEventListener('mousedown', (e) => {
 });
 
 window.addEventListener('mouseup', () => {
+    if (isDrawing || isDragging) persist();
     isDrawing = false;
     isDragging = false;
 });
@@ -126,6 +153,7 @@ undoBtn.addEventListener('click', () => {
     if (history.length > 0) {
         redoStack.push(JSON.stringify(userNodes));
         userNodes = JSON.parse(history.pop());
+        persist();
     }
 });
 
@@ -133,17 +161,22 @@ redoBtn.addEventListener('click', () => {
     if (redoStack.length > 0) {
         history.push(JSON.stringify(userNodes));
         userNodes = JSON.parse(redoStack.pop());
+        persist();
     }
 });
 
 clearBtn.addEventListener('click', () => {
     saveState();
     userNodes = [];
+    persist();
 });
 
-zoomInBtn.addEventListener('click', () => { zoom *= 1.2; });
-zoomOutBtn.addEventListener('click', () => { zoom *= 0.8; });
-rotInput.addEventListener('input', () => { rotation = parseInt(rotInput.value) || 0; });
+zoomInBtn.addEventListener('click', () => { zoom *= 1.2; persist(); });
+zoomOutBtn.addEventListener('click', () => { zoom *= 0.8; persist(); });
+rotInput.addEventListener('input', () => { 
+    rotation = parseInt(rotInput.value) || 0; 
+    persist(); 
+});
 
 saveBtn.addEventListener('click', () => {
     if (userNodes.length === 0) return;
