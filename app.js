@@ -10,6 +10,9 @@ const clearBtn = document.getElementById('clear-btn');
 const zoomInBtn = document.getElementById('zoom-in');
 const zoomOutBtn = document.getElementById('zoom-out');
 const rotInput = document.getElementById('rot-val');
+const exportBtn = document.getElementById('export-btn');
+const importBtn = document.getElementById('import-btn');
+const importInput = document.getElementById('import-input');
 
 let width, height;
 let userNodes = [];
@@ -76,12 +79,7 @@ function saveState() {
 }
 
 function persist() {
-    const state = {
-        userNodes,
-        offset,
-        zoom,
-        rotation
-    };
+    const state = { userNodes, offset, zoom, rotation };
     localStorage.setItem('nexus_matrix_state', JSON.stringify(state));
 }
 
@@ -176,6 +174,38 @@ zoomOutBtn.addEventListener('click', () => { zoom *= 0.8; persist(); });
 rotInput.addEventListener('input', () => { 
     rotation = parseInt(rotInput.value) || 0; 
     persist(); 
+});
+
+exportBtn.addEventListener('click', () => {
+    const data = JSON.stringify({ userNodes, seed, zoom, rotation });
+    const blob = new Blob([data], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.download = `nexus_world_${Date.now()}.json`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+});
+
+importBtn.addEventListener('click', () => importInput.click());
+
+importInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            const state = JSON.parse(event.target.result);
+            saveState();
+            userNodes = state.userNodes || [];
+            seed = state.seed || seed;
+            zoom = state.zoom !== undefined ? state.zoom : zoom;
+            rotation = state.rotation !== undefined ? state.rotation : rotation;
+            rotInput.value = rotation;
+            persist();
+        } catch (err) {
+            alert("IMPORT_FAILED: Invalid JSON");
+        }
+    };
+    reader.readAsText(file);
 });
 
 saveBtn.addEventListener('click', () => {
