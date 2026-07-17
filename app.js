@@ -13,6 +13,7 @@ const rotInput = document.getElementById('rot-val');
 const exportBtn = document.getElementById('export-btn');
 const importBtn = document.getElementById('import-btn');
 const importInput = document.getElementById('import-input');
+const seedInput = document.getElementById('seed-input');
 
 let width, height;
 let userNodes = [];
@@ -79,7 +80,7 @@ function saveState() {
 }
 
 function persist() {
-    const state = { userNodes, offset, zoom, rotation };
+    const state = { userNodes, offset, zoom, rotation, seed };
     localStorage.setItem('nexus_matrix_state', JSON.stringify(state));
 }
 
@@ -92,7 +93,9 @@ function loadState() {
         offset = state.offset || { x: 0, y: 0 };
         zoom = state.zoom !== undefined ? state.zoom : 1;
         rotation = state.rotation !== undefined ? state.rotation : 0;
+        seed = state.seed || "NEXUS_PROTOTYPE_01";
         rotInput.value = rotation;
+        seedInput.value = seed;
     } catch (e) {
         console.error("STATE_LOAD_FAIL");
     }
@@ -176,6 +179,12 @@ rotInput.addEventListener('input', () => {
     persist(); 
 });
 
+seedInput.addEventListener('input', () => {
+    seed = seedInput.value;
+    chunkCache = {};
+    persist();
+});
+
 exportBtn.addEventListener('click', () => {
     const data = JSON.stringify({ userNodes, seed, zoom, rotation });
     const blob = new Blob([data], { type: 'application/json' });
@@ -200,6 +209,7 @@ importInput.addEventListener('change', (e) => {
             zoom = state.zoom !== undefined ? state.zoom : zoom;
             rotation = state.rotation !== undefined ? state.rotation : rotation;
             rotInput.value = rotation;
+            seedInput.value = seed;
             persist();
         } catch (err) {
             alert("IMPORT_FAILED: Invalid JSON");
