@@ -7,6 +7,9 @@ const toggleGen = document.getElementById('toggle-gen');
 const undoBtn = document.getElementById('undo-btn');
 const redoBtn = document.getElementById('redo-btn');
 const clearBtn = document.getElementById('clear-btn');
+const resetBtn = document.getElementById('reset-btn');
+const randSeedBtn = document.getElementById('rand-seed-btn');
+const saveStatus = document.getElementById('save-status');
 const zoomInBtn = document.getElementById('zoom-in');
 const zoomOutBtn = document.getElementById('zoom-out');
 const rotInput = document.getElementById('rot-val');
@@ -82,6 +85,12 @@ function saveState() {
 function persist() {
     const state = { userNodes, offset, zoom, rotation, seed };
     localStorage.setItem('nexus_matrix_state', JSON.stringify(state));
+    saveStatus.textContent = "SAVED";
+    saveStatus.classList.add('status-saved');
+    setTimeout(() => {
+        saveStatus.textContent = "READY";
+        saveStatus.classList.remove('status-saved');
+    }, 1000);
 }
 
 function loadState() {
@@ -172,6 +181,28 @@ clearBtn.addEventListener('click', () => {
     persist();
 });
 
+resetBtn.addEventListener('click', () => {
+    if (confirm("ERASE ALL SYSTEM MEMORY?")) {
+        localStorage.removeItem('nexus_matrix_state');
+        userNodes = [];
+        offset = { x: 0, y: 0 };
+        zoom = 1;
+        rotation = 0;
+        seed = "NEXUS_PROTOTYPE_01";
+        rotInput.value = 0;
+        seedInput.value = seed;
+        chunkCache = {};
+        persist();
+    }
+});
+
+randSeedBtn.addEventListener('click', () => {
+    seed = "SEED_" + Math.random().toString(36).substring(2, 15).toUpperCase();
+    seedInput.value = seed;
+    chunkCache = {};
+    persist();
+});
+
 zoomInBtn.addEventListener('click', () => { zoom *= 1.2; persist(); });
 zoomOutBtn.addEventListener('click', () => { zoom *= 0.8; persist(); });
 rotInput.addEventListener('input', () => { 
@@ -204,7 +235,7 @@ importInput.addEventListener('change', (e) => {
         try {
             const state = JSON.parse(event.target.result);
             saveState();
-            userNodes = state.userNodes || [];
+            userNodes = (state.userNodes || []).filter(n => typeof n.x === 'number' && typeof n.y === 'number');
             seed = state.seed || seed;
             zoom = state.zoom !== undefined ? state.zoom : zoom;
             rotation = state.rotation !== undefined ? state.rotation : rotation;
