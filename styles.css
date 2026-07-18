@@ -27,7 +27,7 @@ body {
 
 #bar {
     display: flex;
-    gap: 25px;
+    gap: 20px;
     padding: 0 15px;
     align-items: center;
     border-bottom: 1px solid var(--border);
@@ -68,6 +68,17 @@ body {
     font-size: 10px;
     width: 45px;
     text-align: center;
+}
+
+.status-label {
+    font-size: 10px;
+    color: var(--border);
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.status-saved {
+    color: var(--accent);
 }
 
 #save-btn {
