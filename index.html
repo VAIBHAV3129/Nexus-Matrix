@@ -24,11 +24,13 @@
             <div class="group">
                 <span class="label">SEED:</span>
                 <input type="text" id="seed-input" value="NEXUS_PROTOTYPE_01" class="ui-input" style="width: 120px;">
+                <button id="rand-seed-btn" class="ui-btn">RAND</button>
             </div>
             <div class="group">
                 <button id="undo-btn" class="ui-btn">UNDO</button>
                 <button id="redo-btn" class="ui-btn">REDO</button>
                 <button id="clear-btn" class="ui-btn">ERASE</button>
+                <button id="reset-btn" class="ui-btn">RESET_SYS</button>
             </div>
             <div class="group">
                 <button id="zoom-out" class="ui-btn">-</button>
@@ -41,7 +43,8 @@
                 <button id="import-btn" class="ui-btn">IMPORT</button>
                 <input type="file" id="import-input" style="display:none" accept=".json">
             </div>
-            <div class="group" style="margin-left: auto;">
+            <div class="group" style="margin-left: auto; gap: 15px;">
+                <span id="save-status" class="status-label">READY</span>
                 <button id="save-btn" class="ui-btn">SAVE_PNG</button>
             </div>
         </header>
